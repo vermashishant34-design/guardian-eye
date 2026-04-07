@@ -101,11 +101,11 @@ export function useFaceDetection({ sensitivity, onThreatDetected }: UseFaceDetec
     const threshold = getThreshold();
 
     const faces: DetectedFace[] = predictions
-      .filter((p) => (p.probability as number[])[0] >= threshold)
+      .filter((p) => (p.probability as unknown as number[])[0] >= threshold)
       .map((p) => ({
-        topLeft: p.topLeft as [number, number],
-        bottomRight: p.bottomRight as [number, number],
-        probability: (p.probability as number[])[0],
+        topLeft: p.topLeft as unknown as [number, number],
+        bottomRight: p.bottomRight as unknown as [number, number],
+        probability: (p.probability as unknown as number[])[0],
       }));
 
     // Threat: more than 1 face detected
