@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import heroDashboard from "@/assets/hero-dashboard.jpg";
 import {
   Shield,
   Eye,
