@@ -73,6 +73,23 @@ export default function Landing() {
               </a>
             </div>
           </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.7 }}
+            className="mt-16 max-w-4xl mx-auto"
+          >
+            <div className="rounded-xl border border-border/50 overflow-hidden glow-primary">
+              <img
+                src={heroDashboard}
+                alt="ShieldEye AI dashboard showing face detection with bounding boxes"
+                width={1280}
+                height={720}
+                className="w-full"
+              />
+            </div>
+          </motion.div>
         </div>
 
         {/* Subtle radial glow */}
