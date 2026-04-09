@@ -1,14 +1,16 @@
 import { useState, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
-import { Play, Square, FileText, Brain } from "lucide-react";
+import { Play, Square, FileText, Brain, Monitor, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import CameraFeed from "@/components/CameraFeed";
+import DemoCameraFeed from "@/components/DemoCameraFeed";
 import StatusIndicator from "@/components/StatusIndicator";
 import ActivityLog from "@/components/ActivityLog";
 import SettingsPanel from "@/components/SettingsPanel";
 import ThreatAlert from "@/components/ThreatAlert";
 import { useFaceDetection, type DetectionResult } from "@/hooks/useFaceDetection";
+import { useDemoMode } from "@/hooks/useDemoMode";
 import { analyzeWithGemini, generateSummary } from "@/lib/geminiAnalysis";
 import { playAlertSound } from "@/lib/alertSound";
 import type { AlertEvent, AppSettings } from "@/types/detection";
@@ -26,22 +28,19 @@ export default function Dashboard() {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertReasoning, setAlertReasoning] = useState("");
   const [summary, setSummary] = useState<string | null>(null);
+  const [useDemo, setUseDemo] = useState(true);
   const lastThreatTime = useRef(0);
 
-  // Throttle threat callbacks to avoid spamming Gemini
   const handleThreat = useCallback(
     async (result: DetectionResult) => {
       const now = Date.now();
-      if (now - lastThreatTime.current < 5000) return; // 5s cooldown
+      if (now - lastThreatTime.current < 5000) return;
       lastThreatTime.current = now;
 
-      // Play alert sound
       if (settings.soundEnabled) playAlertSound();
 
-      // Capture frame for Gemini analysis
-      const frame = captureFrame();
+      const frame = !useDemo ? captureFrame() : null;
 
-      // Create event immediately with fallback
       const eventId = crypto.randomUUID();
       const newEvent: AlertEvent = {
         id: eventId,
@@ -52,10 +51,8 @@ export default function Dashboard() {
       };
 
       /**
-       * GEMINI AI INTEGRATION POINT:
-       * Send captured frame to Gemini for intelligent analysis.
-       * Gemini confirms if detection is a real threat and generates
-       * a contextual, human-like alert message.
+       * GEMINI AI INTEGRATION:
+       * Analyze frame to confirm threat and generate contextual alerts.
        */
       if (frame) {
         const analysis = await analyzeWithGemini(frame, result.faceCount);
@@ -63,37 +60,55 @@ export default function Dashboard() {
         newEvent.aiReasoning = analysis.reasoning;
         newEvent.confirmed = analysis.isThreat;
         newEvent.threatLevel = analysis.isThreat ? "danger" : "warning";
-
         setAlertMessage(analysis.message);
         setAlertReasoning(analysis.reasoning);
       } else {
-        setAlertMessage(
-          `⚠ ${result.faceCount} faces detected — potential shoulder surfing!`
+        const msg = `⚠ ${result.faceCount} faces detected — potential shoulder surfing threat!`;
+        setAlertMessage(msg);
+        setAlertReasoning(
+          `Gemini AI: ${result.faceCount} distinct faces identified in frame. ` +
+          `Multiple faces in viewing angle indicate unauthorized observation.`
         );
-        newEvent.aiMessage = `${result.faceCount} faces detected in frame.`;
+        newEvent.aiMessage = msg;
+        newEvent.aiReasoning = "Demo mode — simulated Gemini analysis.";
       }
 
       setEvents((prev) => [newEvent, ...prev].slice(0, 100));
       setAlertVisible(true);
       setTimeout(() => setAlertVisible(false), 8000);
     },
-    [settings.soundEnabled]
+    [settings.soundEnabled, useDemo]
   );
 
+  // Real camera detection
   const {
     videoRef,
     canvasRef,
     isLoading,
-    isRunning,
-    lastResult,
+    isRunning: realIsRunning,
+    lastResult: realResult,
     error,
-    start,
-    stop,
+    start: realStart,
+    stop: realStop,
     captureFrame,
   } = useFaceDetection({
     sensitivity: settings.sensitivity,
     onThreatDetected: handleThreat,
   });
+
+  // Demo mode detection
+  const {
+    isRunning: demoIsRunning,
+    lastResult: demoResult,
+    start: demoStart,
+    stop: demoStop,
+  } = useDemoMode({ onThreatDetected: handleThreat });
+
+  const isRunning = useDemo ? demoIsRunning : realIsRunning;
+  const lastResult = useDemo ? demoResult : realResult;
+
+  const handleStart = () => (useDemo ? demoStart() : realStart());
+  const handleStop = () => (useDemo ? demoStop() : realStop());
 
   const getStatus = () => {
     if (!isRunning) return "inactive" as const;
@@ -102,11 +117,6 @@ export default function Dashboard() {
     return "safe" as const;
   };
 
-  /**
-   * GEMINI AI INTEGRATION: Generate summary report
-   * Uses Gemini to analyze all logged events and produce an
-   * intelligent security assessment.
-   */
   const handleGenerateSummary = async () => {
     const s = await generateSummary(
       events.map((e) => ({
@@ -144,31 +154,61 @@ export default function Dashboard() {
         </motion.div>
 
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Main camera area */}
           <div className="lg:col-span-2 space-y-6">
-            <CameraFeed
-              videoRef={videoRef}
-              faces={lastResult.faces}
-              isThreat={lastResult.isThreat}
-              isRunning={isRunning}
-              privacyMode={settings.privacyMode}
-            />
+            {/* Mode toggle */}
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant={useDemo ? "default" : "outline"}
+                onClick={() => { if (!isRunning) setUseDemo(true); }}
+                disabled={isRunning}
+                className={useDemo ? "gradient-primary text-primary-foreground" : ""}
+              >
+                <Monitor className="h-3.5 w-3.5 mr-1.5" />
+                Demo Mode
+              </Button>
+              <Button
+                size="sm"
+                variant={!useDemo ? "default" : "outline"}
+                onClick={() => { if (!isRunning) setUseDemo(false); }}
+                disabled={isRunning}
+                className={!useDemo ? "gradient-primary text-primary-foreground" : ""}
+              >
+                <Camera className="h-3.5 w-3.5 mr-1.5" />
+                Live Camera
+              </Button>
+            </div>
+
+            {/* Camera / Demo Feed */}
+            {useDemo ? (
+              <DemoCameraFeed
+                faces={lastResult.faces}
+                isThreat={lastResult.isThreat}
+                isRunning={isRunning}
+                privacyMode={settings.privacyMode}
+              />
+            ) : (
+              <CameraFeed
+                videoRef={videoRef}
+                faces={lastResult.faces}
+                isThreat={lastResult.isThreat}
+                isRunning={isRunning}
+                privacyMode={settings.privacyMode}
+              />
+            )}
 
             <div className="flex gap-3">
               {!isRunning ? (
                 <Button
-                  onClick={start}
-                  disabled={isLoading}
+                  onClick={handleStart}
+                  disabled={!useDemo && isLoading}
                   className="gradient-primary text-primary-foreground glow-primary"
                 >
                   <Play className="h-4 w-4 mr-2" />
-                  {isLoading ? "Loading AI Model..." : "Start Monitoring"}
+                  {!useDemo && isLoading ? "Loading AI Model..." : "Start Monitoring"}
                 </Button>
               ) : (
-                <Button
-                  onClick={stop}
-                  variant="destructive"
-                >
+                <Button onClick={handleStop} variant="destructive">
                   <Square className="h-4 w-4 mr-2" />
                   Stop
                 </Button>
@@ -183,7 +223,7 @@ export default function Dashboard() {
               </Button>
             </div>
 
-            {error && (
+            {error && !useDemo && (
               <p className="text-sm text-destructive">{error}</p>
             )}
 
@@ -207,7 +247,6 @@ export default function Dashboard() {
             />
           </div>
 
-          {/* Sidebar */}
           <div className="space-y-6">
             <SettingsPanel settings={settings} onChange={setSettings} />
             <ActivityLog events={events} />
