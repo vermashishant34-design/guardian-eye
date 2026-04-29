@@ -28,7 +28,7 @@ export default function Dashboard() {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertReasoning, setAlertReasoning] = useState("");
   const [summary, setSummary] = useState<string | null>(null);
-  const [useDemo, setUseDemo] = useState(true);
+  const [useDemo, setUseDemo] = useState(false);
   const lastThreatTime = useRef(0);
 
   const handleThreat = useCallback(
@@ -156,17 +156,7 @@ export default function Dashboard() {
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             {/* Mode toggle */}
-            <div className="flex items-center gap-2">
-              <Button
-                size="sm"
-                variant={useDemo ? "default" : "outline"}
-                onClick={() => { if (!isRunning) setUseDemo(true); }}
-                disabled={isRunning}
-                className={useDemo ? "gradient-primary text-primary-foreground" : ""}
-              >
-                <Monitor className="h-3.5 w-3.5 mr-1.5" />
-                Demo Mode
-              </Button>
+            <div className="flex items-center gap-2 flex-wrap">
               <Button
                 size="sm"
                 variant={!useDemo ? "default" : "outline"}
@@ -175,8 +165,23 @@ export default function Dashboard() {
                 className={!useDemo ? "gradient-primary text-primary-foreground" : ""}
               >
                 <Camera className="h-3.5 w-3.5 mr-1.5" />
-                Live Camera
+                Live Camera (Real)
               </Button>
+              <Button
+                size="sm"
+                variant={useDemo ? "default" : "outline"}
+                onClick={() => { if (!isRunning) setUseDemo(true); }}
+                disabled={isRunning}
+                className={useDemo ? "gradient-primary text-primary-foreground" : ""}
+              >
+                <Monitor className="h-3.5 w-3.5 mr-1.5" />
+                Demo Mode (Simulated)
+              </Button>
+              <span className="text-[11px] text-muted-foreground ml-1">
+                {useDemo
+                  ? "Simulated scenarios — not your actual webcam"
+                  : "Uses your webcam + on-device AI face detection"}
+              </span>
             </div>
 
             {/* Camera / Demo Feed */}
