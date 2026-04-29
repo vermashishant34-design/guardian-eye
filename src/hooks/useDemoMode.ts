@@ -11,6 +11,8 @@ interface DemoScenario {
   faces: DetectedFace[];
   isThreat: boolean;
   duration: number; // ms
+  message?: string;
+  reasoning?: string;
 }
 
 const SCENARIOS: DemoScenario[] = [
@@ -22,7 +24,7 @@ const SCENARIOS: DemoScenario[] = [
     isThreat: false,
     duration: 6000,
   },
-  // Threat: 2 faces (shoulder surfer detected)
+  // Threat: 2 faces — shoulder surfer over right shoulder
   {
     faces: [
       { topLeft: [180, 100], bottomRight: [340, 300], probability: 0.95 },
@@ -30,6 +32,9 @@ const SCENARIOS: DemoScenario[] = [
     ],
     isThreat: true,
     duration: 8000,
+    message: "⚠ Shoulder surfer detected over your right shoulder.",
+    reasoning:
+      "Gemini AI: A second face is positioned behind and to the right of the primary user, with gaze oriented toward the screen. Classic over-the-shoulder observation pattern.",
   },
   // Safe again
   {
@@ -39,7 +44,7 @@ const SCENARIOS: DemoScenario[] = [
     isThreat: false,
     duration: 5000,
   },
-  // Threat: 3 faces
+  // Threat: 3 faces — crowded environment
   {
     faces: [
       { topLeft: [160, 90], bottomRight: [320, 280], probability: 0.96 },
@@ -48,6 +53,29 @@ const SCENARIOS: DemoScenario[] = [
     ],
     isThreat: true,
     duration: 7000,
+    message: "⚠ Multiple observers detected — high-risk environment.",
+    reasoning:
+      "Gemini AI: Three distinct faces identified. User flanked on both sides — public space pattern. Recommend immediate privacy screen or relocation.",
+  },
+  // Safe — user alone
+  {
+    faces: [
+      { topLeft: [190, 105], bottomRight: [345, 305], probability: 0.97 },
+    ],
+    isThreat: false,
+    duration: 6000,
+  },
+  // Threat: 2 faces — close peeker from side
+  {
+    faces: [
+      { topLeft: [180, 100], bottomRight: [340, 300], probability: 0.94 },
+      { topLeft: [10, 120], bottomRight: [160, 290], probability: 0.79 },
+    ],
+    isThreat: true,
+    duration: 8000,
+    message: "⚠ Side observer detected — someone is peeking from the left.",
+    reasoning:
+      "Gemini AI: Secondary face detected at the left periphery, oriented toward screen at close range. Indicates intentional viewing of your display.",
   },
 ];
 
@@ -98,6 +126,9 @@ export function useDemoMode({ onThreatDetected }: UseDemoModeOptions) {
 
     if (scenario.isThreat && onThreatDetected && !threatFiredRef.current.has(scenarioIndex)) {
       threatFiredRef.current.add(scenarioIndex);
+      // Attach scenario message/reasoning so Dashboard can show varied alerts
+      (result as DetectionResult & { _demoMessage?: string; _demoReasoning?: string })._demoMessage = scenario.message;
+      (result as DetectionResult & { _demoMessage?: string; _demoReasoning?: string })._demoReasoning = scenario.reasoning;
       onThreatDetected(result);
     }
 
