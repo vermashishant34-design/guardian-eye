@@ -109,6 +109,11 @@ export default function Dashboard() {
 
   const handleStart = () => (useDemo ? demoStart() : realStart());
   const handleStop = () => (useDemo ? demoStop() : realStop());
+  const handleLiveCameraSelect = () => {
+    if (isRunning) return;
+    setUseDemo(false);
+    realStart();
+  };
 
   const getStatus = () => {
     if (!isRunning) return "inactive" as const;
@@ -160,7 +165,7 @@ export default function Dashboard() {
               <Button
                 size="sm"
                 variant={!useDemo ? "default" : "outline"}
-                onClick={() => { if (!isRunning) setUseDemo(false); }}
+                onClick={handleLiveCameraSelect}
                 disabled={isRunning}
                 className={!useDemo ? "gradient-primary text-primary-foreground" : ""}
               >
