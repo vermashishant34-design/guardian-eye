@@ -198,6 +198,7 @@ export default function Dashboard() {
                 faces={lastResult.faces}
                 isThreat={lastResult.isThreat}
                 isRunning={isRunning}
+                isLoading={isLoading}
                 privacyMode={settings.privacyMode}
               />
             )}
