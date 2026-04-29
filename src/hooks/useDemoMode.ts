@@ -126,6 +126,9 @@ export function useDemoMode({ onThreatDetected }: UseDemoModeOptions) {
 
     if (scenario.isThreat && onThreatDetected && !threatFiredRef.current.has(scenarioIndex)) {
       threatFiredRef.current.add(scenarioIndex);
+      // Attach scenario message/reasoning so Dashboard can show varied alerts
+      (result as DetectionResult & { _demoMessage?: string; _demoReasoning?: string })._demoMessage = scenario.message;
+      (result as DetectionResult & { _demoMessage?: string; _demoReasoning?: string })._demoReasoning = scenario.reasoning;
       onThreatDetected(result);
     }
 
