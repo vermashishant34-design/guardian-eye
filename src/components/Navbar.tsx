@@ -1,4 +1,4 @@
-import { Shield, LogOut } from "lucide-react";
+import { Shield, LogOut, UserPlus } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -60,9 +60,11 @@ export default function Navbar() {
           ) : (
             <Link
               to="/auth"
-              className="inline-flex items-center rounded-md border border-foreground/80 px-4 py-1.5 text-[11px] font-semibold tracking-[0.15em] uppercase text-foreground hover:bg-foreground hover:text-background transition-all"
+              title="Sign up / Sign in"
+              className="inline-flex items-center gap-1.5 rounded-md border border-foreground/80 px-4 py-1.5 text-[11px] font-semibold tracking-[0.15em] uppercase text-foreground hover:bg-foreground hover:text-background transition-all"
             >
-              SECURE NOW
+              <UserPlus className="h-3.5 w-3.5" />
+              SIGN UP
             </Link>
           )}
         </div>
