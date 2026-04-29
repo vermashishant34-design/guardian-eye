@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Shield, Mail, Lock, Loader2 } from "lucide-react";
+import { Shield, Mail, Lock, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -71,7 +71,15 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen gradient-dark grid-cyber flex items-center justify-center p-4">
+    <div className="min-h-screen gradient-dark grid-cyber flex items-center justify-center p-4 relative">
+      <Link
+        to="/"
+        aria-label="Close and go back"
+        title="Back"
+        className="fixed top-4 right-4 z-50 inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/40 bg-card/40 backdrop-blur-xl text-foreground hover:bg-foreground hover:text-background transition-all"
+      >
+        <X className="h-5 w-5" />
+      </Link>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
