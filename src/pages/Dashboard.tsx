@@ -30,6 +30,7 @@ export default function Dashboard() {
   const [summary, setSummary] = useState<string | null>(null);
   const [useDemo, setUseDemo] = useState(false);
   const lastThreatTime = useRef(0);
+  const captureFrameRef = useRef<() => string | null>(() => null);
 
   const handleThreat = useCallback(
     async (result: DetectionResult) => {
@@ -39,7 +40,7 @@ export default function Dashboard() {
 
       if (settings.soundEnabled) playAlertSound();
 
-      const frame = !useDemo ? captureFrame() : null;
+      const frame = !useDemo ? captureFrameRef.current() : null;
 
       const eventId = crypto.randomUUID();
       const newEvent: AlertEvent = {
@@ -77,7 +78,7 @@ export default function Dashboard() {
       setAlertVisible(true);
       setTimeout(() => setAlertVisible(false), 8000);
     },
-    [settings.soundEnabled, useDemo, captureFrame]
+    [settings.soundEnabled, useDemo]
   );
 
   // Real camera detection
@@ -95,6 +96,7 @@ export default function Dashboard() {
     sensitivity: settings.sensitivity,
     onThreatDetected: handleThreat,
   });
+  captureFrameRef.current = captureFrame;
 
   // Demo mode detection
   const {
