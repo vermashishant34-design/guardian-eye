@@ -77,7 +77,7 @@ export default function Dashboard() {
       setAlertVisible(true);
       setTimeout(() => setAlertVisible(false), 8000);
     },
-    [settings.soundEnabled, useDemo]
+    [settings.soundEnabled, useDemo, captureFrame]
   );
 
   // Real camera detection
