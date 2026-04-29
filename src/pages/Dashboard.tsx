@@ -28,7 +28,7 @@ export default function Dashboard() {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertReasoning, setAlertReasoning] = useState("");
   const [summary, setSummary] = useState<string | null>(null);
-  const [useDemo, setUseDemo] = useState(true);
+  const [useDemo, setUseDemo] = useState(false);
   const lastThreatTime = useRef(0);
 
   const handleThreat = useCallback(
