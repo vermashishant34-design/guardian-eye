@@ -30,6 +30,7 @@ export default function Dashboard() {
   const [summary, setSummary] = useState<string | null>(null);
   const [useDemo, setUseDemo] = useState(false);
   const lastThreatTime = useRef(0);
+  const captureFrameRef = useRef<() => string | null>(() => null);
 
   const handleThreat = useCallback(
     async (result: DetectionResult) => {
@@ -39,7 +40,7 @@ export default function Dashboard() {
 
       if (settings.soundEnabled) playAlertSound();
 
-      const frame = !useDemo ? captureFrame() : null;
+      const frame = !useDemo ? captureFrameRef.current() : null;
 
       const eventId = crypto.randomUUID();
       const newEvent: AlertEvent = {
@@ -95,6 +96,7 @@ export default function Dashboard() {
     sensitivity: settings.sensitivity,
     onThreatDetected: handleThreat,
   });
+  captureFrameRef.current = captureFrame;
 
   // Demo mode detection
   const {
@@ -109,6 +111,11 @@ export default function Dashboard() {
 
   const handleStart = () => (useDemo ? demoStart() : realStart());
   const handleStop = () => (useDemo ? demoStop() : realStop());
+  const handleLiveCameraSelect = () => {
+    if (isRunning) return;
+    setUseDemo(false);
+    realStart();
+  };
 
   const getStatus = () => {
     if (!isRunning) return "inactive" as const;
@@ -160,7 +167,7 @@ export default function Dashboard() {
               <Button
                 size="sm"
                 variant={!useDemo ? "default" : "outline"}
-                onClick={() => { if (!isRunning) setUseDemo(false); }}
+                onClick={handleLiveCameraSelect}
                 disabled={isRunning}
                 className={!useDemo ? "gradient-primary text-primary-foreground" : ""}
               >
@@ -198,6 +205,7 @@ export default function Dashboard() {
                 faces={lastResult.faces}
                 isThreat={lastResult.isThreat}
                 isRunning={isRunning}
+                isLoading={isLoading}
                 privacyMode={settings.privacyMode}
               />
             )}

@@ -27,7 +27,7 @@ export function useFaceDetection({ sensitivity, onThreatDetected }: UseFaceDetec
   const streamRef = useRef<MediaStream | null>(null);
   const animFrameRef = useRef<number>(0);
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [lastResult, setLastResult] = useState<DetectionResult>({
     faces: [],
@@ -43,7 +43,10 @@ export function useFaceDetection({ sensitivity, onThreatDetected }: UseFaceDetec
   }, [sensitivity]);
 
   const loadModel = useCallback(async () => {
+    if (modelRef.current) return;
+
     try {
+      setIsLoading(true);
       await tf.ready();
       const model = await blazeface.load();
       modelRef.current = model;
@@ -54,8 +57,14 @@ export function useFaceDetection({ sensitivity, onThreatDetected }: UseFaceDetec
     }
   }, []);
 
-  const startCamera = useCallback(async () => {
+  const startCamera = useCallback(async (): Promise<boolean> => {
     try {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        setError("Camera is not available in this browser.");
+        return false;
+      }
+
+      setError(null);
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: 640, height: 480 },
       });
@@ -64,8 +73,13 @@ export function useFaceDetection({ sensitivity, onThreatDetected }: UseFaceDetec
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
       }
+      return true;
     } catch (err) {
-      setError("Camera access denied. Please allow camera permissions.");
+      const message = err instanceof DOMException && err.name === "NotAllowedError"
+        ? "Camera permission is blocked. Please allow camera access in your browser settings."
+        : "Unable to start camera. Please close other camera apps and try again.";
+      setError(message);
+      return false;
     }
   }, []);
 
@@ -73,6 +87,9 @@ export function useFaceDetection({ sensitivity, onThreatDetected }: UseFaceDetec
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
     }
     if (animFrameRef.current) {
       cancelAnimationFrame(animFrameRef.current);
@@ -131,9 +148,11 @@ export function useFaceDetection({ sensitivity, onThreatDetected }: UseFaceDetec
   }, [detect]);
 
   const start = useCallback(async () => {
-    await loadModel();
-    await startCamera();
+    const cameraStarted = await startCamera();
+    if (!cameraStarted) return;
+
     setIsRunning(true);
+    await loadModel();
   }, [loadModel, startCamera]);
 
   useEffect(() => {
