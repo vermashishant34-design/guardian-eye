@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Clock, AlertTriangle, ShieldCheck, Brain } from "lucide-react";
+import { Clock, AlertTriangle, ShieldCheck } from "lucide-react";
 import type { AlertEvent } from "@/types/detection";
 
 interface Props {
@@ -53,8 +53,7 @@ export default function ActivityLog({ events }: Props) {
                 </span>
               </div>
               {event.aiMessage && (
-                <div className="flex items-start gap-1.5 mt-1.5 text-muted-foreground">
-                  <Brain className="h-3 w-3 mt-0.5 text-primary shrink-0" />
+                <div className="mt-1.5 text-muted-foreground">
                   <span>{event.aiMessage}</span>
                 </div>
               )}

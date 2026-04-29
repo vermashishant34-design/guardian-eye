@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import {
   Shield,
   Eye,
-  Brain,
   Zap,
   Camera,
   Bell,
@@ -15,7 +14,6 @@ import {
   Cpu,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import GeminiHighlight from "@/components/GeminiHighlight";
 
 const stats = [
   { icon: Shield, number: "99.9%", label: "THREATS BLOCKED", tag: "ACTIVE" },
@@ -25,11 +23,11 @@ const stats = [
 
 const features = [
   { icon: Camera, title: "Webcam Monitoring", desc: "Continuous real-time face detection using TensorFlow.js BlazeFace model" },
-  { icon: Brain, title: "Gemini AI Analysis", desc: "Google Gemini confirms threats and generates intelligent, contextual alerts" },
+  { icon: Zap, title: "On-Device Detection", desc: "All face detection runs locally in your browser — no data leaves your device" },
   { icon: Bell, title: "Instant Alerts", desc: "Visual and audio notifications the moment a threat is detected" },
   { icon: Lock, title: "Privacy Mode", desc: "Automatically blurs screen content when shoulder surfing is detected" },
   { icon: Eye, title: "Bounding Boxes", desc: "Visual face tracking with user/intruder classification overlays" },
-  { icon: BarChart3, title: "Activity Dashboard", desc: "Complete event log with AI-generated security summary reports" },
+  { icon: BarChart3, title: "Activity Dashboard", desc: "Complete event log of every detection in your session" },
 ];
 
 export default function Landing() {
@@ -39,7 +37,6 @@ export default function Landing() {
 
       {/* Hero */}
       <section className="relative pt-32 pb-12 min-h-[90vh] flex flex-col items-center justify-center">
-        {/* Arc glow effects */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[45%]">
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
@@ -55,7 +52,6 @@ export default function Landing() {
           />
         </div>
 
-        {/* Ambient particles */}
         <div className="absolute inset-0 pointer-events-none">
           {[...Array(20)].map((_, i) => (
             <motion.div
@@ -65,10 +61,7 @@ export default function Landing() {
                 left: `${10 + Math.random() * 80}%`,
                 top: `${10 + Math.random() * 80}%`,
               }}
-              animate={{
-                opacity: [0, 0.6, 0],
-                scale: [0, 1, 0],
-              }}
+              animate={{ opacity: [0, 0.6, 0], scale: [0, 1, 0] }}
               transition={{
                 duration: 3 + Math.random() * 4,
                 repeat: Infinity,
@@ -84,7 +77,6 @@ export default function Landing() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
-            {/* Version tag */}
             <div className="flex items-center justify-center gap-3 mb-8">
               <div className="h-px w-6 bg-muted-foreground/30" />
               <span className="text-xs font-mono tracking-widest text-muted-foreground uppercase">
@@ -92,14 +84,12 @@ export default function Landing() {
               </span>
             </div>
 
-            {/* Main headline */}
             <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter leading-[0.9] mb-8 uppercase">
               <span className="text-foreground">Shield</span>
               <br />
               <span className="text-gradient-primary">Eye</span>
             </h1>
 
-            {/* Status badge + subtitle */}
             <div className="flex items-center justify-center gap-4 mb-6">
               <motion.div
                 animate={{ scale: [1, 1.05, 1] }}
@@ -117,15 +107,12 @@ export default function Landing() {
               </p>
             </div>
 
-            {/* Description */}
             <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-              We leverage{" "}
-              <span className="text-primary font-semibold">Google Gemini AI</span>{" "}
-              to secure your screen, detect unauthorized viewers,
-              and neutralize shoulder surfing threats before they succeed.
+              Secure your screen, detect unauthorized viewers, and neutralize
+              shoulder surfing threats before they succeed — all running
+              privately on your device.
             </p>
 
-            {/* CTA buttons */}
             <div className="flex items-center justify-center gap-4">
               <Link
                 to="/dashboard"
@@ -135,7 +122,7 @@ export default function Landing() {
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
               </Link>
               <a
-                href="#gemini"
+                href="#how-it-works"
                 className="inline-flex items-center gap-2 rounded-lg border border-border px-7 py-3.5 font-semibold text-foreground hover:bg-secondary transition-colors uppercase text-sm tracking-wider"
               >
                 Learn More
@@ -144,7 +131,6 @@ export default function Landing() {
           </motion.div>
         </div>
 
-        {/* Stats row */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -176,7 +162,6 @@ export default function Landing() {
                 <p className="text-[10px] font-mono tracking-[0.2em] text-muted-foreground uppercase mt-1">
                   {stat.label}
                 </p>
-                {/* Progress bar accent */}
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-muted">
                   <motion.div
                     initial={{ width: "0%" }}
@@ -230,9 +215,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Gemini highlight section */}
-      <GeminiHighlight />
-
       {/* CTA */}
       <section className="py-24">
         <div className="container text-center">
@@ -242,7 +224,6 @@ export default function Landing() {
             viewport={{ once: true }}
             className="relative rounded-2xl border border-primary/20 gradient-card p-12 md:p-16 max-w-3xl mx-auto overflow-hidden"
           >
-            {/* Subtle arc glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-primary/5 blur-[80px] pointer-events-none" />
 
             <Fingerprint className="h-10 w-10 text-primary mx-auto mb-6" />
@@ -251,7 +232,7 @@ export default function Landing() {
             </h2>
             <p className="text-muted-foreground mb-8 max-w-md mx-auto">
               Start monitoring in seconds. No installation required.
-              Your AI-powered security shield awaits.
+              Your security shield awaits.
             </p>
             <Link
               to="/dashboard"
@@ -269,9 +250,9 @@ export default function Landing() {
         <div className="container flex items-center justify-between text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
             <Shield className="h-4 w-4 text-primary" />
-            <span className="font-mono tracking-wider">SHIELDEYE — AI-Powered Shoulder Surfing Detector</span>
+            <span className="font-mono tracking-wider">SHIELDEYE — Shoulder Surfing Detector</span>
           </div>
-          <span className="font-mono tracking-wider">Built with Google Gemini API</span>
+          <span className="font-mono tracking-wider">Built with on-device AI</span>
         </div>
       </footer>
     </div>
