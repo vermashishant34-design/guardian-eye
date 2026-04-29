@@ -7,6 +7,7 @@ interface Props {
   faces: DetectedFace[];
   isThreat: boolean;
   isRunning: boolean;
+  isLoading?: boolean;
   privacyMode: boolean;
 }
 
@@ -15,6 +16,7 @@ export default function CameraFeed({
   faces,
   isThreat,
   isRunning,
+  isLoading = false,
   privacyMode,
 }: Props) {
   const overlayRef = useRef<HTMLCanvasElement>(null);
@@ -90,7 +92,7 @@ export default function CameraFeed({
 
       {!isRunning && (
         <div className="absolute inset-0 flex items-center justify-center bg-card">
-          <p className="text-muted-foreground">Camera inactive</p>
+          <p className="text-muted-foreground">{isLoading ? "Loading AI model..." : "Camera inactive"}</p>
         </div>
       )}
     </div>
