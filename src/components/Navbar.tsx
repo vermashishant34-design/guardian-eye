@@ -1,6 +1,7 @@
-import { Shield } from "lucide-react";
+import { Shield, LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useAuth } from "@/hooks/useAuth";
 
 const navItems = [
   { label: "PLATFORM", path: "/dashboard" },
@@ -10,6 +11,7 @@ const navItems = [
 
 export default function Navbar() {
   const location = useLocation();
+  const { user, signOut } = useAuth();
 
   return (
     <motion.nav
@@ -47,12 +49,22 @@ export default function Navbar() {
               {item.label}
             </Link>
           ))}
-          <Link
-            to="/dashboard"
-            className="inline-flex items-center rounded-md border border-foreground/80 px-4 py-1.5 text-[11px] font-semibold tracking-[0.15em] uppercase text-foreground hover:bg-foreground hover:text-background transition-all"
-          >
-            SECURE NOW
-          </Link>
+          {user ? (
+            <button
+              onClick={() => signOut()}
+              className="inline-flex items-center gap-1.5 rounded-md border border-foreground/80 px-4 py-1.5 text-[11px] font-semibold tracking-[0.15em] uppercase text-foreground hover:bg-foreground hover:text-background transition-all"
+            >
+              <LogOut className="h-3 w-3" />
+              SIGN OUT
+            </button>
+          ) : (
+            <Link
+              to="/auth"
+              className="inline-flex items-center rounded-md border border-foreground/80 px-4 py-1.5 text-[11px] font-semibold tracking-[0.15em] uppercase text-foreground hover:bg-foreground hover:text-background transition-all"
+            >
+              SECURE NOW
+            </Link>
+          )}
         </div>
       </div>
     </motion.nav>
