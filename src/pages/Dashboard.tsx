@@ -63,14 +63,14 @@ export default function Dashboard() {
         setAlertMessage(analysis.message);
         setAlertReasoning(analysis.reasoning);
       } else {
-        const msg = `⚠ ${result.faceCount} faces detected — potential shoulder surfing threat!`;
+        const demoMsg = (result as DetectionResult & { _demoMessage?: string; _demoReasoning?: string })._demoMessage;
+        const demoReasoning = (result as DetectionResult & { _demoMessage?: string; _demoReasoning?: string })._demoReasoning;
+        const msg = demoMsg ?? `⚠ ${result.faceCount} faces detected — potential shoulder surfing threat!`;
+        const reasoning = demoReasoning ?? `Gemini AI: ${result.faceCount} distinct faces identified in frame. Multiple faces in viewing angle indicate unauthorized observation.`;
         setAlertMessage(msg);
-        setAlertReasoning(
-          `Gemini AI: ${result.faceCount} distinct faces identified in frame. ` +
-          `Multiple faces in viewing angle indicate unauthorized observation.`
-        );
+        setAlertReasoning(reasoning);
         newEvent.aiMessage = msg;
-        newEvent.aiReasoning = "Demo mode — simulated Gemini analysis.";
+        newEvent.aiReasoning = reasoning;
       }
 
       setEvents((prev) => [newEvent, ...prev].slice(0, 100));
